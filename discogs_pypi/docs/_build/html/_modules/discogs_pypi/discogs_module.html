@@ -1,0 +1,622 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>discogs_pypi.discogs_module &#8212; discogs_pypi  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for discogs_pypi.discogs_module</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># coding: utf-8</span>
+
+<span class="c1"># In[1]:</span>
+
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;/Users/jayzee/Documents&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">discogs_env</span>
+<span class="kn">import</span> <span class="nn">oauth2</span> <span class="k">as</span> <span class="nn">oauth</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">selenium</span>
+<span class="kn">from</span> <span class="nn">selenium</span> <span class="kn">import</span> <span class="n">webdriver</span>
+<span class="kn">from</span> <span class="nn">selenium.webdriver.common.by</span> <span class="kn">import</span> <span class="n">By</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+
+<span class="c1"># In[4]:</span>
+
+
+<div class="viewcode-block" id="create_app"><a class="viewcode-back" href="../../source/discogs_pypi.html#discogs_pypi.discogs_module.create_app">[docs]</a><span class="k">def</span> <span class="nf">create_app</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates an application, where the user must enter their full name and description, returns consumer key and secret.</span>
+
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    username : str</span>
+<span class="sd">        A string of the user&#39;s username</span>
+<span class="sd">    password : str</span>
+<span class="sd">        A string of the user&#39;s password</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A string of the user&#39;s unique consumer key</span>
+<span class="sd">    str</span>
+<span class="sd">        A string of the user&#39;s unique consumer secret</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">driver</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Chrome</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">ChromeOptions</span><span class="p">()</span>
+    
+    <span class="c1"># prevent site from detecting automated test software</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">add_experimental_option</span><span class="p">(</span><span class="s2">&quot;useAutomationExtension&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">add_experimental_option</span><span class="p">(</span><span class="s2">&quot;excludeSwitches&quot;</span><span class="p">,[</span><span class="s2">&quot;enable-automation&quot;</span><span class="p">])</span>
+    
+    <span class="c1"># driver = webdriver.Chrome(executable_path=driver_path, chrome_options=options)</span>
+    <span class="n">driver</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Chrome</span><span class="p">(</span><span class="n">chrome_options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+
+    <span class="c1"># go to developer url</span>
+    <span class="n">developer_url</span> <span class="o">=</span> <span class="s2">&quot;https://www.discogs.com/settings/developers&quot;</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">developer_url</span><span class="p">)</span>
+
+    <span class="c1"># find username/email field and send the username itself to the input field</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+    <span class="c1"># find password input field and insert password as well</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+    <span class="c1"># click login button</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">&quot;//button[@type =&#39;submit&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
+
+    <span class="c1"># click button to create app</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">&quot;//a[@href=&#39;/applications/edit&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
+    
+    <span class="c1"># find username/email field and send the username itself to the input field</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">&quot;/html/body/div[1]/div[4]/div/form/fieldset[1]/div[1]/input&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Please enter your full name &quot;</span><span class="p">)))</span>
+    <span class="c1"># find password input field and insert password as well</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">&quot;/html/body/div[1]/div[4]/div/form/fieldset[1]/div[2]/textarea&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Please enter a description &quot;</span><span class="p">)))</span>
+
+    <span class="c1"># click to confirm create application </span>
+    <span class="n">button</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">&quot;&quot;&quot;/html/body/div[1]/div[4]/div/form/fieldset[2]/button&quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">execute_script</span><span class="p">(</span><span class="s2">&quot;arguments[0].click();&quot;</span><span class="p">,</span> <span class="n">button</span><span class="p">)</span>
+
+    <span class="c1"># get consumer Key</span>
+    <span class="n">consumer_key</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">&quot;&quot;&quot;//*[@id=&quot;page_content&quot;]/table/tbody/tr[1]/td[2]/code&quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+
+    <span class="c1"># get consumer secret</span>
+    <span class="n">consumer_secret</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">&quot;/html/body/div[1]/div[4]/div/table/tbody/tr[2]/td[2]/code&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">)</span></div>
+
+
+<span class="c1"># In[5]:</span>
+
+
+<span class="c1"># Function to get authentication tokens from consumer key and secret</span>
+<div class="viewcode-block" id="get_tokens"><a class="viewcode-back" href="../../source/discogs_pypi.html#discogs_pypi.discogs_module.get_tokens">[docs]</a><span class="k">def</span> <span class="nf">get_tokens</span><span class="p">(</span><span class="n">user_agent</span><span class="p">,</span> <span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates and returns authentication token </span>
+
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    user_agent : str</span>
+<span class="sd">        String of the user&#39;s user_agent</span>
+<span class="sd">    consumer_key : str</span>
+<span class="sd">        String of the user&#39;s unique consumer key</span>
+<span class="sd">    consumer_secret : str</span>
+<span class="sd">        String of the user&#39;s unique consumer secret</span>
+
+<span class="sd">            </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        String of the user&#39;s authentication token</span>
+<span class="sd">    str</span>
+<span class="sd">        String of the user&#39;s authentication secret</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;https://api.discogs.com/oauth/request_token&quot;</span>
+    <span class="n">consumer</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">consumer_key</span><span class="p">,</span> <span class="n">secret</span><span class="o">=</span><span class="n">consumer_secret</span><span class="p">)</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">consumer</span><span class="p">)</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/x-www-form-urlencoded&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="n">user_agent</span><span class="p">}</span>
+
+    <span class="n">r</span><span class="p">,</span> <span class="n">token_content</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
+                    <span class="n">request_url</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;PUT&quot;</span><span class="p">,</span>
+                    <span class="n">headers</span><span class="o">=</span><span class="n">headers</span>
+                    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">])</span>
+
+    <span class="c1"># extract oauth token from content</span>
+    <span class="n">token_content</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">token_content</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="s2">&quot;b&#39;oauth_token=&quot;</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="s1">&#39;&amp;&#39;</span>
+
+    <span class="k">assert</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">!=</span><span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;An error occured&quot;</span> <span class="c1"># if the token was not successfully produced then raise an assertion</span>
+
+    <span class="n">oauth_token</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(.*)</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">),</span> <span class="n">token_content</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">oauth_token_secret</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;token_secret=(.+?)&#39;&quot;</span><span class="p">,</span> <span class="n">token_content</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">oauth_token</span><span class="p">,</span> <span class="n">oauth_token_secret</span><span class="p">)</span></div>
+
+
+<span class="c1"># In[6]:</span>
+
+
+<div class="viewcode-block" id="authorize_token"><a class="viewcode-back" href="../../source/discogs_pypi.html#discogs_pypi.discogs_module.authorize_token">[docs]</a><span class="k">def</span> <span class="nf">authorize_token</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">oauth_token</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Authorize authentication token credentials and returns a code for future verification.</span>
+
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    username : str</span>
+<span class="sd">        String of the user&#39;s username</span>
+<span class="sd">    password : str</span>
+<span class="sd">        String of the user&#39;s password</span>
+<span class="sd">    oauth_token : str</span>
+<span class="sd">        String of the user&#39;s authentication token</span>
+
+<span class="sd">            </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        String of the user&#39;s code</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+
+    <span class="n">driver</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Chrome</span><span class="p">()</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">ChromeOptions</span><span class="p">()</span>
+    <span class="c1"># prevent site from detecting automated test software</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">add_experimental_option</span><span class="p">(</span><span class="s2">&quot;useAutomationExtension&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">add_experimental_option</span><span class="p">(</span><span class="s2">&quot;excludeSwitches&quot;</span><span class="p">,[</span><span class="s2">&quot;enable-automation&quot;</span><span class="p">])</span>
+    <span class="c1">#driver = webdriver.Chrome(executable_path=driver_path, chrome_options=options)</span>
+    <span class="n">driver</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Chrome</span><span class="p">(</span><span class="n">chrome_options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://www.discogs.com/oauth/authorize?oauth_token=&quot;</span><span class="o">+</span><span class="n">oauth_token</span><span class="p">)</span>
+
+    <span class="c1"># find username/email field and send the username itself to the input field</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+    <span class="c1"># find password input field and insert password as well</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">ID</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+
+    <span class="c1"># click login button</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">&quot;//button[@type =&#39;submit&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
+
+    <span class="c1"># click Authorize button</span>
+    <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">&quot;//button[@class=&#39;button button-green&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
+    
+    <span class="c1"># get Authorization code</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">TAG_NAME</span><span class="p">,</span> <span class="s1">&#39;pre&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">code</span><span class="p">)</span></div>
+
+
+<span class="c1"># In[ ]:</span>
+
+
+<div class="viewcode-block" id="get_access_tokens"><a class="viewcode-back" href="../../source/discogs_pypi.html#discogs_pypi.discogs_module.get_access_tokens">[docs]</a><span class="k">def</span> <span class="nf">get_access_tokens</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">,</span> <span class="n">user_agent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns access token and secret access token for retrieving data</span>
+
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    username : str</span>
+<span class="sd">        String of the user&#39;s username</span>
+<span class="sd">    password : str</span>
+<span class="sd">        String of the user&#39;s password</span>
+<span class="sd">    consumer_key : str</span>
+<span class="sd">        String of the user&#39;s unique consumer key</span>
+<span class="sd">    consumer_secret : str</span>
+<span class="sd">        String of the user&#39;s unique consumer secret</span>
+<span class="sd">    user_agent : str</span>
+<span class="sd">        String of the user&#39;s user_agent</span>
+<span class="sd">            </span>
+<span class="sd">            </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        String of the user&#39;s access token</span>
+<span class="sd">    str</span>
+<span class="sd">        String of the user&#39;s access token secret</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    
+    <span class="c1">#Get oauth token, token secret, and code </span>
+    <span class="n">oauth_token</span><span class="p">,</span> <span class="n">oauth_token_secret</span> <span class="o">=</span> <span class="n">get_tokens</span><span class="p">(</span><span class="n">user_agent</span><span class="p">,</span> <span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">)</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">authorize_token</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">oauth_token</span><span class="p">)</span>
+    
+    <span class="c1">#Get token from oauth token and oauth token secret</span>
+    
+    <span class="n">token</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Token</span><span class="p">(</span><span class="n">oauth_token</span><span class="p">,</span> <span class="n">oauth_token_secret</span><span class="p">)</span>
+    <span class="n">token</span><span class="o">.</span><span class="n">set_verifier</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="c1"># Verification code</span>
+    
+    <span class="n">consumer</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">key</span> <span class="o">=</span> <span class="n">consumer_key</span><span class="p">,</span> <span class="n">secret</span><span class="o">=</span><span class="n">consumer_secret</span><span class="p">)</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">consumer</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+    <span class="n">myheaders</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/x-www-form-urlencoded&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="n">user_agent</span><span class="p">}</span>
+
+    <span class="n">access_url</span> <span class="o">=</span> <span class="s2">&quot;https://api.discogs.com/oauth/access_token&quot;</span>
+    <span class="n">r</span><span class="p">,</span> <span class="n">content2</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
+                    <span class="n">access_url</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+                    <span class="n">headers</span><span class="o">=</span><span class="n">myheaders</span>
+                    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">!=</span><span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;An error occured&quot;</span> <span class="c1">#If the token was not successfully produced then raise an assertion</span>
+
+    <span class="c1">#Extract access token from content</span>
+    <span class="n">token_content2</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">content2</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="s2">&quot;b&#39;oauth_token=&quot;</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="s1">&#39;&amp;&#39;</span>
+
+    <span class="n">access_token</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(.*)</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">),</span> <span class="n">token_content2</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">access_token_secret</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;token_secret=(.+?)&#39;&quot;</span><span class="p">,</span> <span class="n">token_content2</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">)</span></div>
+
+
+<span class="c1"># In[ ]:</span>
+
+
+<span class="c1"># Function to attain information on artist releases based on selected artist of user&#39;s choosing</span>
+<div class="viewcode-block" id="get_releases_data"><a class="viewcode-back" href="../../source/discogs_pypi.html#discogs_pypi.discogs_module.get_releases_data">[docs]</a><span class="k">def</span> <span class="nf">get_releases_data</span><span class="p">(</span><span class="n">artist_id_list</span><span class="p">,</span> <span class="n">access_token</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">,</span> <span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">,</span> <span class="n">user_agent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function obtains List containing a list of artist ID numbers chosen by the user. There is no limit to the number of artists.</span>
+<span class="sd">    IDs can be found on the top right corner of the artist&#39;s Discogs resource URL, and is followed by one alphabetic character, enclosed within brackets</span>
+<span class="sd">    Returns a dataframe containing information on all the releases (albums, appearances, soundtracks, etc.) of the selected artists.</span>
+
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    artist_id_list : list</span>
+<span class="sd">        List containing a list of artist IDs </span>
+<span class="sd">    access_token : str</span>
+<span class="sd">        String of the user&#39;s access token</span>
+<span class="sd">    access_token_secret : str</span>
+<span class="sd">        String of the user&#39;s access token secret</span>
+<span class="sd">    consumer_key : str</span>
+<span class="sd">        String of the user&#39;s unique consumer key</span>
+<span class="sd">    consumer_secret : str</span>
+<span class="sd">        String of the user&#39;s unique consumer secret</span>
+<span class="sd">    user_agent : str</span>
+<span class="sd">        String of the user&#39;s user_agent</span>
+
+<span class="sd">            </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        Dataframe containing release_id, title, artist, year, etc of each release and each artist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    
+    <span class="c1"># empty dataframe for all artists:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">artist_id</span> <span class="ow">in</span> <span class="n">artist_id_list</span><span class="p">:</span> 
+
+        <span class="c1"># get number of pages describing releases of artist</span>
+        <span class="n">access_tokens</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Token</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">)</span> <span class="c1"># attach OAuth access token and access token secret to request</span>
+        <span class="n">consumer</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">key</span> <span class="o">=</span> <span class="n">consumer_key</span><span class="p">,</span> <span class="n">secret</span> <span class="o">=</span> <span class="n">consumer_secret</span><span class="p">)</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">consumer</span><span class="p">,</span> <span class="n">access_tokens</span><span class="p">)</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">content</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s2">&quot;https://api.discogs.com/artists/&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">artist_id</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;/releases&quot;</span><span class="p">,</span> <span class="c1"># artist releases</span>
+                                    <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+                                    <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="n">user_agent</span><span class="p">}</span>
+                                    <span class="p">)</span>
+        <span class="n">content_cleaned</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="n">pages</span> <span class="o">=</span> <span class="n">content_cleaned</span><span class="p">[</span><span class="s1">&#39;pagination&#39;</span><span class="p">][</span><span class="s1">&#39;pages&#39;</span><span class="p">]</span> <span class="c1"># number of pages</span>
+
+        <span class="c1"># iterate through each page and append</span>
+        <span class="n">artist_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span> <span class="c1"># empty dataframe for all releases</span>
+        <span class="n">count</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pages</span><span class="p">):</span>
+            <span class="n">count</span><span class="o">+=</span><span class="mi">1</span> <span class="c1"># page counter</span>
+            <span class="n">access_tokens</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Token</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">)</span> <span class="c1"># attach OAuth access token and access token secret to request</span>
+            <span class="n">consumer</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">key</span> <span class="o">=</span> <span class="n">consumer_key</span><span class="p">,</span> <span class="n">secret</span><span class="o">=</span><span class="n">consumer_secret</span><span class="p">)</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">consumer</span><span class="p">,</span> <span class="n">access_tokens</span><span class="p">)</span>
+            <span class="n">r</span><span class="p">,</span> <span class="n">content</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s2">&quot;https://api.discogs.com/artists/&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">artist_id</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;/releases?page=&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">),</span> <span class="c1"># artist Releases</span>
+                                        <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+                                        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="n">user_agent</span><span class="p">}</span>
+                                        <span class="p">)</span>
+            <span class="n">content_cleaned</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+
+            <span class="c1"># create empty DataFrame for each artist</span>
+            <span class="n">releases_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;artist&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;role&quot;</span><span class="p">,</span> <span class="s2">&quot;stats&quot;</span><span class="p">])</span>
+
+            <span class="c1"># iterating over each release</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">content_cleaned</span><span class="p">[</span><span class="s1">&#39;releases&#39;</span><span class="p">]:</span>
+                <span class="n">releases_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">releases_df</span><span class="p">)]</span> <span class="o">=</span> <span class="n">i</span> <span class="c1"># converts each information of a release as a row in a dataframe</span>
+            <span class="c1"># rename ID into release ID (not to get confused w/artist ID)</span>
+            <span class="n">releases_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span><span class="s1">&#39;release_id&#39;</span><span class="p">},</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">releases_df</span><span class="p">[</span><span class="s1">&#39;artist_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">artist_id</span>
+            <span class="n">releases_df</span><span class="p">[</span><span class="s2">&quot;stats&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="c1">#Convert stats to string</span>
+
+            <span class="c1"># get number of wantlisters and collectors</span>
+            <span class="n">wantlist_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;community&#39;: {&#39;in_wantlist&#39;: ([0-9]*),&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">))</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">releases_df</span><span class="p">[</span><span class="s2">&quot;stats&quot;</span><span class="p">]]</span> <span class="c1"># get number users who added this to their wantlist </span>
+            <span class="n">collection_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;&#39;in_collection&#39;: ([0-9]*)},&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">))</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">releases_df</span><span class="p">[</span><span class="s2">&quot;stats&quot;</span><span class="p">]]</span> <span class="c1"># get users who have this in their collection already</span>
+            <span class="n">releases_df</span><span class="p">[</span><span class="s1">&#39;in_wantlist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wantlist_list</span> <span class="c1"># append wantlisters</span>
+            <span class="n">releases_df</span><span class="p">[</span><span class="s1">&#39;in_collection&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">collection_list</span> <span class="c1"># append collectors</span>
+            <span class="c1"># clean data</span>
+            <span class="n">releases_df2</span> <span class="o">=</span> <span class="n">releases_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;release_id&#39;</span><span class="p">])</span> <span class="c1"># remove NA columns</span>
+            <span class="n">releases_df2</span> <span class="o">=</span> <span class="n">releases_df2</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;stats&#39;</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># remove original stats column</span>
+
+            <span class="c1"># append each page of artists data to full artist data</span>
+            <span class="n">artist_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">artist_df</span><span class="p">,</span> <span class="n">releases_df2</span><span class="p">])</span>
+
+        <span class="c1"># populate data with full artist data</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">artist_df</span><span class="p">])</span> 
+
+    <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># fix index</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+
+
+<span class="c1"># In[ ]:</span>
+
+
+<div class="viewcode-block" id="summary_stats_by_artist"><a class="viewcode-back" href="../../source/discogs_pypi.html#discogs_pypi.discogs_module.summary_stats_by_artist">[docs]</a><span class="k">def</span> <span class="nf">summary_stats_by_artist</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function obtains the dataframe from containing information on artist releases and returns summary statistics by artist.</span>
+<span class="sd">    Summary statistics include average collectors or wantlisters for each artist, and years active.</span>
+
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">        pandas.Dataframe containing release_id, title, artist, year, etc of each release and each artist</span>
+
+<span class="sd">            </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        Summary statistics by artist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">## Get average number releases added into wantlist and collection ##</span>
+    <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;in_wantlist&#39;</span><span class="p">,</span> <span class="s1">&#39;in_collection&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;in_wantlist&#39;</span><span class="p">,</span> <span class="s1">&#39;in_collection&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="n">want_collect_avgs</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;artist_id&#39;</span><span class="p">,</span> <span class="s1">&#39;in_wantlist&#39;</span><span class="p">,</span> <span class="s1">&#39;in_collection&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;artist_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">want_collect_avgs</span> <span class="o">=</span> <span class="n">want_collect_avgs</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">want_collect_avgs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;in_wantlist&#39;</span><span class="p">:</span><span class="s1">&#39;wantlisted_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;in_collection&#39;</span><span class="p">:</span><span class="s1">&#39;collected_avg&#39;</span><span class="p">},</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1">## Get total number of releases ##</span>
+    <span class="n">release_counts</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;release_id&quot;</span><span class="p">,</span> <span class="s2">&quot;artist_id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;artist_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">release_counts</span> <span class="o">=</span> <span class="n">release_counts</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">release_counts</span> <span class="o">=</span> <span class="n">release_counts</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;release_id&#39;</span><span class="p">:</span><span class="s1">&#39;release_count&#39;</span><span class="p">})</span>
+
+    <span class="c1"># merge release and wantlist data</span>
+    <span class="n">summary_half</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">want_collect_avgs</span><span class="p">,</span> <span class="n">release_counts</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s1">&#39;artist_id&#39;</span><span class="p">)</span> 
+    
+    <span class="c1">## Get the years active of an artist ##</span>
+    <span class="n">min_max_yr</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;artist_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;year&#39;</span> <span class="p">:</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">]})</span>
+    <span class="n">min_max_yr</span> <span class="o">=</span> <span class="n">min_max_yr</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">min_max_yr</span> <span class="o">=</span> <span class="n">min_max_yr</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;amin&#39;</span><span class="p">:</span><span class="s1">&#39;earliest_release_yr&#39;</span><span class="p">,</span> <span class="s1">&#39;amax&#39;</span><span class="p">:</span> <span class="s2">&quot;latest_release_yr&quot;</span><span class="p">})</span>
+
+    <span class="c1"># merge all</span>
+    <span class="n">summary_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">summary_half</span><span class="p">,</span> <span class="n">min_max_yr</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s2">&quot;artist_id&quot;</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">summary_stats</span><span class="p">)</span></div>
+
+
+<span class="c1"># In[33]:</span>
+
+
+<div class="viewcode-block" id="want_collect_fig"><a class="viewcode-back" href="../../source/discogs_pypi.html#discogs_pypi.discogs_module.want_collect_fig">[docs]</a><span class="k">def</span> <span class="nf">want_collect_fig</span><span class="p">(</span><span class="n">summary_stats</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Takes in summary table of artist releasts, returns a data visualization depicting the total number of users who have collected or wanted a release for each artist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">want_collect_avgs</span> <span class="o">=</span> <span class="n">summary_stats</span><span class="p">[[</span><span class="s1">&#39;artist_id&#39;</span><span class="p">,</span> <span class="s1">&#39;wantlisted_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;collected_avg&#39;</span><span class="p">]]</span>
+    <span class="n">want_collect_avgs</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;artist_id&#39;</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+            <span class="n">stacked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Average number of release wantlisters and collectors by artist&#39;</span><span class="p">,</span>
+            <span class="n">xlabel</span> <span class="o">=</span> <span class="s2">&quot;Artist ID&quot;</span><span class="p">,</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="s2">&quot;Average&quot;</span>
+            <span class="p">)</span></div>
+
+
+<span class="c1"># In[38]:</span>
+
+
+<div class="viewcode-block" id="user_wantlist"><a class="viewcode-back" href="../../source/discogs_pypi.html#discogs_pypi.discogs_module.user_wantlist">[docs]</a><span class="k">def</span> <span class="nf">user_wantlist</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">access_token</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">,</span> <span class="n">consumer_key</span><span class="p">,</span> <span class="n">consumer_secret</span><span class="p">,</span> <span class="n">user_agent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dataframe of releases from a user&#39;s wantlist with additional details on basic information about the release</span>
+
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    username : str</span>
+<span class="sd">        String of the user&#39;s username</span>
+<span class="sd">    access_token : str</span>
+<span class="sd">        String of the user&#39;s access token</span>
+<span class="sd">    access_token_secret : str</span>
+<span class="sd">        String of the user&#39;s access token secret</span>
+<span class="sd">    consumer_key : str</span>
+<span class="sd">        String of the user&#39;s unique consumer key</span>
+<span class="sd">    consumer_secret : str</span>
+<span class="sd">        String of the user&#39;s unique consumer secret</span>
+<span class="sd">    user_agent : str</span>
+<span class="sd">        String of the user&#39;s user_agent</span>
+
+<span class="sd"> </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        pandas.Dataframe containing release_id, title, year released, artist, genres, etc. of each release within a user&#39;s wantlist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># empty dataframe for entire wantlist:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">page_counter</span><span class="o">=</span><span class="mi">0</span> 
+    <span class="c1"># get number of pages of user&#39;s wantlist</span>
+    <span class="n">access_tokens</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Token</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">)</span> <span class="c1"># attach OAuth access token and access token secret to request</span>
+    <span class="n">consumer</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">key</span> <span class="o">=</span> <span class="n">consumer_key</span><span class="p">,</span> <span class="n">secret</span><span class="o">=</span><span class="n">consumer_secret</span><span class="p">)</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">consumer</span><span class="p">,</span> <span class="n">access_tokens</span><span class="p">)</span>
+    <span class="n">r</span><span class="p">,</span> <span class="n">content</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s2">&quot;https://api.discogs.com/users/&quot;</span><span class="o">+</span><span class="n">username</span><span class="o">+</span><span class="s2">&quot;/wants&quot;</span><span class="p">,</span> <span class="c1"># artist Releases</span>
+                                <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+                                <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="n">user_agent</span><span class="p">}</span>
+                                <span class="p">)</span>
+    <span class="n">content_cleaned</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="n">pages</span> <span class="o">=</span> <span class="n">content_cleaned</span><span class="p">[</span><span class="s1">&#39;pagination&#39;</span><span class="p">][</span><span class="s1">&#39;pages&#39;</span><span class="p">]</span> <span class="c1"># number of pages</span>
+
+    <span class="c1"># create dataframe for user&#39;s wantlist for each page</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pages</span><span class="p">):</span>
+        <span class="n">page_counter</span><span class="o">+=</span><span class="mi">1</span> <span class="c1"># page counter</span>
+        
+        <span class="c1"># get wantlist of user and request data</span>
+        <span class="n">access_tokens</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Token</span><span class="p">(</span><span class="n">access_token</span><span class="p">,</span> <span class="n">access_token_secret</span><span class="p">)</span> <span class="c1"># attach OAuth access token and access token secret to request</span>
+        <span class="n">consumer</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Consumer</span><span class="p">(</span><span class="n">key</span> <span class="o">=</span> <span class="n">consumer_key</span><span class="p">,</span> <span class="n">secret</span><span class="o">=</span><span class="n">consumer_secret</span><span class="p">)</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">oauth</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">consumer</span><span class="p">,</span> <span class="n">access_tokens</span><span class="p">)</span>
+        <span class="n">user_wantlist_url</span> <span class="o">=</span> <span class="s2">&quot;https://api.discogs.com/users/&quot;</span><span class="o">+</span><span class="n">username</span><span class="o">+</span><span class="s2">&quot;/wants?page=&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">page_counter</span><span class="p">)</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">want_content</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">user_wantlist_url</span><span class="p">,</span> 
+                                    <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+                                    <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="n">user_agent</span><span class="p">}</span>
+                                    <span class="p">)</span>
+        <span class="n">want_content_cleaned</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">want_content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span> <span class="c1"># convert content to readable format</span>
+        
+        <span class="c1"># create empty DataFrame for each page</span>
+        <span class="n">wantlist_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;date_added&quot;</span><span class="p">,</span> <span class="s2">&quot;basic_information&quot;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">want_content_cleaned</span><span class="p">[</span><span class="s1">&#39;wants&#39;</span><span class="p">]:</span>
+            <span class="n">wantlist_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">wantlist_df</span><span class="p">)]</span> <span class="o">=</span> <span class="n">i</span> <span class="c1"># convert each information of a release as a row in a dataframe</span>
+        <span class="n">wantlist_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span><span class="s1">&#39;release_id&#39;</span><span class="p">},</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># in basic info, search for title</span>
+        <span class="n">titles</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;&#39;title&#39;: [</span><span class="se">\&#39;</span><span class="s2">|</span><span class="se">\&quot;</span><span class="s2">](.*?)[</span><span class="se">\&#39;</span><span class="s2">|</span><span class="se">\&quot;</span><span class="s2">],&quot;&quot;&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">))</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">wantlist_df</span><span class="p">[</span><span class="s2">&quot;basic_information&quot;</span><span class="p">]]</span>   
+        <span class="n">wantlist_df</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">titles</span> <span class="c1"># append wantlisters</span>
+
+        <span class="c1"># Year released </span>
+        <span class="n">years</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;year&#39;: ([0-9]*),&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">))</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">wantlist_df</span><span class="p">[</span><span class="s2">&quot;basic_information&quot;</span><span class="p">]]</span>   
+        <span class="n">wantlist_df</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">years</span> <span class="c1"># append year released</span>
+
+        <span class="c1"># Artist</span>
+        <span class="n">artists</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;artists&#39;: \[\{&#39;name&#39;: &#39;(.*)&#39;, &#39;anv&#39;:&quot;&quot;&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">))</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">wantlist_df</span><span class="p">[</span><span class="s2">&quot;basic_information&quot;</span><span class="p">]]</span>   
+        <span class="n">wantlist_df</span><span class="p">[</span><span class="s1">&#39;artist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">artists</span> <span class="c1"># append release genre</span>
+
+        <span class="c1"># Artist ID</span>
+        <span class="n">artist_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;&#39;tracks&#39;: &#39;&#39;, &#39;id&#39;: ([0-9]*), &#39;resource_url&#39;:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">))</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">wantlist_df</span><span class="p">[</span><span class="s2">&quot;basic_information&quot;</span><span class="p">]]</span>   
+        <span class="n">wantlist_df</span><span class="p">[</span><span class="s1">&#39;artist_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">artist_ids</span> <span class="c1"># append artist ID</span>
+        <span class="n">wantlist_df</span><span class="p">[</span><span class="s2">&quot;artist_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">wantlist_df</span><span class="p">[</span><span class="s2">&quot;artist_id&quot;</span><span class="p">])</span> <span class="c1">#Convert column type to numeric</span>
+        
+        <span class="c1"># Genre</span>
+        <span class="n">genres</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;&#39;genres&#39;: (.*?),&quot;&quot;&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">))</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">wantlist_df</span><span class="p">[</span><span class="s2">&quot;basic_information&quot;</span><span class="p">]]</span>   
+        <span class="n">wantlist_df</span><span class="p">[</span><span class="s1">&#39;genres&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">genres</span> <span class="c1"># append list of genre</span>
+
+        <span class="c1"># Style</span>
+        <span class="n">styles</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;&#39;styles&#39;: (.*?)&quot;&quot;&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">))</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">wantlist_df</span><span class="p">[</span><span class="s2">&quot;basic_information&quot;</span><span class="p">]]</span>   
+        <span class="n">wantlist_df</span><span class="p">[</span><span class="s1">&#39;styles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">styles</span> <span class="c1"># append list of styles</span>
+    
+        <span class="c1"># populate data with full artist data</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">wantlist_df</span><span class="p">])</span> 
+    <span class="k">return</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+
+
+<span class="c1"># In[52]:</span>
+
+
+<div class="viewcode-block" id="is_release_in_user_wantlist"><a class="viewcode-back" href="../../source/discogs_pypi.html#discogs_pypi.discogs_module.is_release_in_user_wantlist">[docs]</a><span class="k">def</span> <span class="nf">is_release_in_user_wantlist</span><span class="p">(</span><span class="n">wantlist_df</span><span class="p">,</span> <span class="n">releases_df</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dataframe on artist releases with the addition of a new variable signifying whether a release is in the user&#39;s wantlist.</span>
+
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wantlist_df : pandas.DataFrame</span>
+<span class="sd">        pandas.Dataframe containing release_id, title, year released, artist, genres, etc. of each release within a user&#39;s wantlist</span>
+<span class="sd">    releases_df : pandas.Dataframe</span>
+<span class="sd">        pandas.Dataframe containing release_id, title, artist, year, etc of each release and each artist</span>
+<span class="sd">    username : str</span>
+<span class="sd">        String of the user&#39;s username</span>
+
+<span class="sd">                </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        pandas.Dataframe containing original information on releases with the additional column indicating if the release is in a user&#39;s wantlist   </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">releases_df</span><span class="p">[</span><span class="s1">&#39;in_user_wantlist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">releases_df</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">wantlist_df</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">])),</span><span class="mi">1</span> <span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">releases_df</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">discogs_pypi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conduct.html">Code of Conduct</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Camilla Zhang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

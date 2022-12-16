@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>discogs_pypi package &#8212; discogs_pypi  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="discogs-pypi-package">
+<h1>discogs_pypi package<a class="headerlink" href="#discogs-pypi-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-discogs_pypi.discogs_module">
+<span id="discogs-pypi-discogs-module-module"></span><h2>discogs_pypi.discogs_module module<a class="headerlink" href="#module-discogs_pypi.discogs_module" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="discogs_pypi.discogs_module.authorize_token">
+<span class="sig-prename descclassname"><span class="pre">discogs_pypi.discogs_module.</span></span><span class="sig-name descname"><span class="pre">authorize_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oauth_token</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/discogs_pypi/discogs_module.html#authorize_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#discogs_pypi.discogs_module.authorize_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Authorize authentication token credentials and returns a code for future verification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> (<em>str</em>) – String of the user’s username</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – String of the user’s password</p></li>
+<li><p><strong>oauth_token</strong> (<em>str</em>) – String of the user’s authentication token</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>String of the user’s code</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="discogs_pypi.discogs_module.create_app">
+<span class="sig-prename descclassname"><span class="pre">discogs_pypi.discogs_module.</span></span><span class="sig-name descname"><span class="pre">create_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/discogs_pypi/discogs_module.html#create_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#discogs_pypi.discogs_module.create_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an application, where the user must enter their full name and description, returns consumer key and secret.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> (<em>str</em>) – A string of the user’s username</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – A string of the user’s password</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>str</em> – A string of the user’s unique consumer key</p></li>
+<li><p><em>str</em> – A string of the user’s unique consumer secret</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="discogs_pypi.discogs_module.get_access_tokens">
+<span class="sig-prename descclassname"><span class="pre">discogs_pypi.discogs_module.</span></span><span class="sig-name descname"><span class="pre">get_access_tokens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumer_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumer_secret</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/discogs_pypi/discogs_module.html#get_access_tokens"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#discogs_pypi.discogs_module.get_access_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns access token and secret access token for retrieving data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> (<em>str</em>) – String of the user’s username</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – String of the user’s password</p></li>
+<li><p><strong>consumer_key</strong> (<em>str</em>) – String of the user’s unique consumer key</p></li>
+<li><p><strong>consumer_secret</strong> (<em>str</em>) – String of the user’s unique consumer secret</p></li>
+<li><p><strong>user_agent</strong> (<em>str</em>) – String of the user’s user_agent</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>str</em> – String of the user’s access token</p></li>
+<li><p><em>str</em> – String of the user’s access token secret</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="discogs_pypi.discogs_module.get_releases_data">
+<span class="sig-prename descclassname"><span class="pre">discogs_pypi.discogs_module.</span></span><span class="sig-name descname"><span class="pre">get_releases_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artist_id_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token_secret</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumer_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumer_secret</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/discogs_pypi/discogs_module.html#get_releases_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#discogs_pypi.discogs_module.get_releases_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function obtains List containing a list of artist ID numbers chosen by the user. There is no limit to the number of artists.
+IDs can be found on the top right corner of the artist’s Discogs resource URL, and is followed by one alphabetic character, enclosed within brackets
+Returns a dataframe containing information on all the releases (albums, appearances, soundtracks, etc.) of the selected artists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>artist_id_list</strong> (<em>list</em>) – List containing a list of artist IDs</p></li>
+<li><p><strong>access_token</strong> (<em>str</em>) – String of the user’s access token</p></li>
+<li><p><strong>access_token_secret</strong> (<em>str</em>) – String of the user’s access token secret</p></li>
+<li><p><strong>consumer_key</strong> (<em>str</em>) – String of the user’s unique consumer key</p></li>
+<li><p><strong>consumer_secret</strong> (<em>str</em>) – String of the user’s unique consumer secret</p></li>
+<li><p><strong>user_agent</strong> (<em>str</em>) – String of the user’s user_agent</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dataframe containing release_id, title, artist, year, etc of each release and each artist</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="discogs_pypi.discogs_module.get_tokens">
+<span class="sig-prename descclassname"><span class="pre">discogs_pypi.discogs_module.</span></span><span class="sig-name descname"><span class="pre">get_tokens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_agent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumer_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumer_secret</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/discogs_pypi/discogs_module.html#get_tokens"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#discogs_pypi.discogs_module.get_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates and returns authentication token</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_agent</strong> (<em>str</em>) – String of the user’s user_agent</p></li>
+<li><p><strong>consumer_key</strong> (<em>str</em>) – String of the user’s unique consumer key</p></li>
+<li><p><strong>consumer_secret</strong> (<em>str</em>) – String of the user’s unique consumer secret</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>str</em> – String of the user’s authentication token</p></li>
+<li><p><em>str</em> – String of the user’s authentication secret</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="discogs_pypi.discogs_module.is_release_in_user_wantlist">
+<span class="sig-prename descclassname"><span class="pre">discogs_pypi.discogs_module.</span></span><span class="sig-name descname"><span class="pre">is_release_in_user_wantlist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wantlist_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">releases_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/discogs_pypi/discogs_module.html#is_release_in_user_wantlist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#discogs_pypi.discogs_module.is_release_in_user_wantlist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dataframe on artist releases with the addition of a new variable signifying whether a release is in the user’s wantlist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wantlist_df</strong> (<em>pandas.DataFrame</em>) – pandas.Dataframe containing release_id, title, year released, artist, genres, etc. of each release within a user’s wantlist</p></li>
+<li><p><strong>releases_df</strong> (<em>pandas.Dataframe</em>) – pandas.Dataframe containing release_id, title, artist, year, etc of each release and each artist</p></li>
+<li><p><strong>username</strong> (<em>str</em>) – String of the user’s username</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>pandas.Dataframe containing original information on releases with the additional column indicating if the release is in a user’s wantlist</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="discogs_pypi.discogs_module.summary_stats_by_artist">
+<span class="sig-prename descclassname"><span class="pre">discogs_pypi.discogs_module.</span></span><span class="sig-name descname"><span class="pre">summary_stats_by_artist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/discogs_pypi/discogs_module.html#summary_stats_by_artist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#discogs_pypi.discogs_module.summary_stats_by_artist" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function obtains the dataframe from containing information on artist releases and returns summary statistics by artist.
+Summary statistics include average collectors or wantlisters for each artist, and years active.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>pandas.DataFrame</em>) – pandas.Dataframe containing release_id, title, artist, year, etc of each release and each artist</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Summary statistics by artist</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="discogs_pypi.discogs_module.user_wantlist">
+<span class="sig-prename descclassname"><span class="pre">discogs_pypi.discogs_module.</span></span><span class="sig-name descname"><span class="pre">user_wantlist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_token_secret</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumer_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consumer_secret</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/discogs_pypi/discogs_module.html#user_wantlist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#discogs_pypi.discogs_module.user_wantlist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dataframe of releases from a user’s wantlist with additional details on basic information about the release</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> (<em>str</em>) – String of the user’s username</p></li>
+<li><p><strong>access_token</strong> (<em>str</em>) – String of the user’s access token</p></li>
+<li><p><strong>access_token_secret</strong> (<em>str</em>) – String of the user’s access token secret</p></li>
+<li><p><strong>consumer_key</strong> (<em>str</em>) – String of the user’s unique consumer key</p></li>
+<li><p><strong>consumer_secret</strong> (<em>str</em>) – String of the user’s unique consumer secret</p></li>
+<li><p><strong>user_agent</strong> (<em>str</em>) – String of the user’s user_agent</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>pandas.Dataframe containing release_id, title, year released, artist, genres, etc. of each release within a user’s wantlist</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="discogs_pypi.discogs_module.want_collect_fig">
+<span class="sig-prename descclassname"><span class="pre">discogs_pypi.discogs_module.</span></span><span class="sig-name descname"><span class="pre">want_collect_fig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_stats</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/discogs_pypi/discogs_module.html#want_collect_fig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#discogs_pypi.discogs_module.want_collect_fig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes in summary table of artist releasts, returns a data visualization depicting the total number of users who have collected or wanted a release for each artist</p>
+</dd></dl>
+
+</section>
+<section id="module-discogs_pypi.discogs_pypi">
+<span id="discogs-pypi-discogs-pypi-module"></span><h2>discogs_pypi.discogs_pypi module<a class="headerlink" href="#module-discogs_pypi.discogs_pypi" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-discogs_pypi">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-discogs_pypi" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">discogs_pypi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Camilla Zhang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/source/discogs_pypi.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
