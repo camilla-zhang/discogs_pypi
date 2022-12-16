@@ -1,4 +1,4 @@
-# [cz_discogs_py: A package to collect data from the Discogs music database](https://test.pypi.org/project/discogs-pypi/) 
+# [discogs_pypi: A package to collect data from the Discogs music database](https://test.pypi.org/project/discogs-pypi/) 
 
 Discogs is one of the largest online music databases, where music fans from around the world can connect by buying or selling music in different forms from vinyl records to CDs. The website contains information on latest music releases, whether it be albums, covers, or soundtracks. Users can explore this information and add music releases to their collection or their "wantlist".
 
